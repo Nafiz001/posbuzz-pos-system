@@ -93,7 +93,7 @@ export default function SalesHistory() {
     {
       title: 'Actions',
       key: 'actions',
-      render: (_: any, record: Sale) => (
+      render: (_: unknown, record: Sale) => (
         <Button
           type="primary"
           ghost
@@ -133,7 +133,7 @@ export default function SalesHistory() {
     {
       title: 'Subtotal',
       key: 'subtotal',
-      render: (_: any, record: SaleItem) => (
+      render: (_: unknown, record: SaleItem) => (
         <Text strong>${(record.price * record.quantity).toFixed(2)}</Text>
       ),
     },

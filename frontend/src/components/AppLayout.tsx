@@ -78,7 +78,7 @@ export default function AppLayout() {
           alignItems: 'center'
         }}>
           <div style={{ fontSize: 18, fontWeight: 500 }}>
-            Welcome, {user?.email}
+            Welcome, {user?.email?.split('@')[0]}
           </div>
           <Button 
             icon={<LogoutOutlined />} 

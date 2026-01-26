@@ -10,10 +10,12 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const onFinish = async (values: { email: string; password: string }) => {
+  const onFinish = async (values: { email: string; password: string; confirmPassword: string }) => {
     setLoading(true);
     try {
-      await api.post('/auth/register', values);
+      // Remove confirmPassword before sending to API
+      const { confirmPassword, ...registerData } = values;
+      await api.post('/auth/register', registerData);
       message.success('Registration successful! Please login.');
       navigate('/login');
     } catch (error: any) {
