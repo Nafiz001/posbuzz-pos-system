@@ -36,7 +36,7 @@ export default function Products() {
   const [form] = Form.useForm();
   const queryClient = useQueryClient();
 
-  const { data: products, isLoading, refetch } = useQuery({
+  const { data: products, isLoading } = useQuery({
     queryKey: ['products'],
     queryFn: async () => {
       const response = await api.get('/products');
