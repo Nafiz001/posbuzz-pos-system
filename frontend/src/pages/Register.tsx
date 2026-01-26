@@ -2,23 +2,22 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Form, Input, Button, Card, message, Typography } from 'antd';
 import { UserOutlined, LockOutlined, MailOutlined } from '@ant-design/icons';
-import { useAuth } from '../contexts/AuthContext';
+import api from '../lib/api';
 
 const { Title, Text } = Typography;
 
-export default function Login() {
+export default function Register() {
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
   const navigate = useNavigate();
 
   const onFinish = async (values: { email: string; password: string }) => {
     setLoading(true);
     try {
-      await login(values.email, values.password);
-      message.success('Login successful!');
-      navigate('/dashboard');
+      await api.post('/auth/register', values);
+      message.success('Registration successful! Please login.');
+      navigate('/login');
     } catch (error: any) {
-      message.error(error.response?.data?.message || 'Login failed');
+      message.error(error.response?.data?.message || 'Registration failed');
     } finally {
       setLoading(false);
     }
@@ -46,11 +45,11 @@ export default function Login() {
           <Title level={2} style={{ marginBottom: 8, color: '#1890ff' }}>
             PosBuzz POS System
           </Title>
-          <Text type="secondary">Welcome back! Please login to your account</Text>
+          <Text type="secondary">Create your account to get started</Text>
         </div>
 
         <Form
-          name="login"
+          name="register"
           onFinish={onFinish}
           autoComplete="off"
           layout="vertical"
@@ -73,11 +72,36 @@ export default function Login() {
           <Form.Item
             name="password"
             label="Password"
-            rules={[{ required: true, message: 'Please input your password!' }]}
+            rules={[
+              { required: true, message: 'Please input your password!' },
+              { min: 6, message: 'Password must be at least 6 characters!' }
+            ]}
           >
             <Input.Password
               prefix={<LockOutlined style={{ color: '#1890ff' }} />}
               placeholder="Enter your password"
+            />
+          </Form.Item>
+
+          <Form.Item
+            name="confirmPassword"
+            label="Confirm Password"
+            dependencies={['password']}
+            rules={[
+              { required: true, message: 'Please confirm your password!' },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (!value || getFieldValue('password') === value) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(new Error('Passwords do not match!'));
+                },
+              }),
+            ]}
+          >
+            <Input.Password
+              prefix={<LockOutlined style={{ color: '#1890ff' }} />}
+              placeholder="Confirm your password"
             />
           </Form.Item>
 
@@ -94,15 +118,15 @@ export default function Login() {
                 borderRadius: 8
               }}
             >
-              Login
+              Create Account
             </Button>
           </Form.Item>
 
           <div style={{ textAlign: 'center' }}>
             <Text type="secondary">
-              Don't have an account?{' '}
-              <Link to="/register" style={{ fontWeight: 500 }}>
-                Register now
+              Already have an account?{' '}
+              <Link to="/login" style={{ fontWeight: 500 }}>
+                Login here
               </Link>
             </Text>
           </div>

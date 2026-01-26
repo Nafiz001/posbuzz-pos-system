@@ -12,11 +12,13 @@ import {
   Statistic,
   Space,
   Typography,
+  Empty,
+  Divider,
 } from 'antd';
-import { PlusOutlined, DeleteOutlined, ShoppingCartOutlined } from '@ant-design/icons';
+import { PlusOutlined, DeleteOutlined, ShoppingCartOutlined, ClearOutlined } from '@ant-design/icons';
 import api from '../lib/api';
 
-const { Title } = Typography;
+const { Title, Text } = Typography;
 
 interface Product {
   id: string;
@@ -45,6 +47,8 @@ export default function Sales() {
       const response = await api.get('/products');
       return response.data;
     },
+    refetchOnMount: 'always',
+    staleTime: 0,
   });
 
   const createSaleMutation = useMutation({
@@ -54,6 +58,7 @@ export default function Sales() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['sales'] });
       message.success('Sale completed successfully!');
       setCart([]);
       setSelectedProductId('');
@@ -109,12 +114,19 @@ export default function Sales() {
       ]);
     }
 
+    message.success(`Added ${quantity} × ${product.name} to cart`);
     setSelectedProductId('');
     setQuantity(1);
   };
 
   const removeFromCart = (productId: string) => {
     setCart(cart.filter(item => item.productId !== productId));
+    message.info('Item removed from cart');
+  };
+
+  const clearCart = () => {
+    setCart([]);
+    message.info('Cart cleared');
   };
 
   const total = cart.reduce((sum, item) => sum + item.subtotal, 0);
@@ -138,30 +150,47 @@ export default function Sales() {
       title: 'Product',
       dataIndex: ['product', 'name'],
       key: 'name',
+      render: (name: string, record: CartItem) => (
+        <div>
+          <strong>{name}</strong>
+          <br />
+          <Text type="secondary" style={{ fontSize: 12 }}>SKU: {record.product.sku}</Text>
+        </div>
+      ),
     },
     {
       title: 'Price',
       dataIndex: ['product', 'price'],
       key: 'price',
-      render: (price: number) => `$${price.toFixed(2)}`,
+      render: (price: number) => (
+        <span style={{ color: '#52c41a', fontWeight: 500 }}>${price.toFixed(2)}</span>
+      ),
     },
     {
       title: 'Quantity',
       dataIndex: 'quantity',
       key: 'quantity',
+      render: (quantity: number) => (
+        <span style={{ fontSize: 16, fontWeight: 'bold' }}>{quantity}</span>
+      ),
     },
     {
       title: 'Subtotal',
       dataIndex: 'subtotal',
       key: 'subtotal',
-      render: (subtotal: number) => `$${subtotal.toFixed(2)}`,
+      render: (subtotal: number) => (
+        <span style={{ fontSize: 16, fontWeight: 'bold', color: '#1890ff' }}>
+          ${subtotal.toFixed(2)}
+        </span>
+      ),
     },
     {
       title: 'Action',
       key: 'action',
+      width: 100,
       render: (_: any, record: CartItem) => (
         <Button
-          type="link"
+          type="text"
           danger
           icon={<DeleteOutlined />}
           onClick={() => removeFromCart(record.productId)}
@@ -174,12 +203,22 @@ export default function Sales() {
 
   return (
     <div>
-      <Title level={2}>POS - Point of Sale</Title>
+      <Card bordered={false} style={{ marginBottom: 16 }}>
+        <Title level={2} style={{ margin: 0 }}>
+          <ShoppingCartOutlined style={{ marginRight: 8 }} />
+          Point of Sale
+        </Title>
+        <Text type="secondary">Create new sales and manage transactions</Text>
+      </Card>
       
-      <Row gutter={16}>
-        <Col span={16}>
-          <Card title="Add to Cart" style={{ marginBottom: 16 }}>
-            <Space.Compact style={{ width: '100%' }}>
+      <Row gutter={[16, 16]}>
+        <Col xs={24} lg={16}>
+          <Card 
+            title={<span style={{ fontSize: 16, fontWeight: 600 }}>Add Items to Cart</span>}
+            bordered={false}
+            style={{ marginBottom: 16 }}
+          >
+            <Space.Compact style={{ width: '100%' }} size="large">
               <Select
                 showSearch
                 placeholder="Select a product"
@@ -187,47 +226,96 @@ export default function Sales() {
                 value={selectedProductId || undefined}
                 onChange={setSelectedProductId}
                 optionFilterProp="label"
-                options={products?.map((p: Product) => ({
+                size="large"
+                options={products?.filter((p: Product) => p.stock_quantity > 0).map((p: Product) => ({
                   value: p.id,
-                  label: `${p.name} (${p.sku}) - Stock: ${p.stock_quantity}`,
+                  label: `${p.name} (${p.sku}) - $${p.price.toFixed(2)} - Stock: ${p.stock_quantity}`,
                 }))}
+                notFoundContent={<Empty description="No products available" />}
               />
               <InputNumber
                 min={1}
                 value={quantity}
                 onChange={(val) => setQuantity(val || 1)}
-                style={{ width: 100 }}
+                style={{ width: 120 }}
                 placeholder="Qty"
+                size="large"
               />
               <Button
                 type="primary"
                 icon={<PlusOutlined />}
                 onClick={addToCart}
+                size="large"
               >
                 Add
               </Button>
             </Space.Compact>
           </Card>
 
-          <Card title="Cart">
-            <Table
-              columns={cartColumns}
-              dataSource={cart}
-              rowKey="productId"
-              pagination={false}
-            />
+          <Card 
+            title={
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: 16, fontWeight: 600 }}>Shopping Cart</span>
+                {cart.length > 0 && (
+                  <Button
+                    type="text"
+                    danger
+                    icon={<ClearOutlined />}
+                    onClick={clearCart}
+                    size="small"
+                  >
+                    Clear Cart
+                  </Button>
+                )}
+              </div>
+            }
+            bordered={false}
+          >
+            {cart.length === 0 ? (
+              <Empty 
+                description="Your cart is empty"
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                style={{ padding: '60px 0' }}
+              />
+            ) : (
+              <Table
+                columns={cartColumns}
+                dataSource={cart}
+                rowKey="productId"
+                pagination={false}
+                size="middle"
+              />
+            )}
           </Card>
         </Col>
 
-        <Col span={8}>
-          <Card>
+        <Col xs={24} lg={8}>
+          <Card bordered={false} style={{ position: 'sticky', top: 16 }}>
+            <Title level={4} style={{ marginTop: 0 }}>Order Summary</Title>
+            <Divider style={{ margin: '16px 0' }} />
+            
+            <div style={{ marginBottom: 24 }}>
+              <Row justify="space-between" style={{ marginBottom: 12 }}>
+                <Text>Items:</Text>
+                <Text strong>{cart.length}</Text>
+              </Row>
+              <Row justify="space-between" style={{ marginBottom: 12 }}>
+                <Text>Total Quantity:</Text>
+                <Text strong>{cart.reduce((sum, item) => sum + item.quantity, 0)}</Text>
+              </Row>
+            </div>
+
+            <Divider style={{ margin: '16px 0' }} />
+
             <Statistic
-              title="Total Amount"
+              title={<span style={{ fontSize: 16 }}>Total Amount</span>}
               value={total}
               precision={2}
               prefix="$"
-              valueStyle={{ color: '#3f8600', fontSize: 32 }}
+              valueStyle={{ color: '#52c41a', fontSize: 36, fontWeight: 'bold' }}
+              style={{ marginBottom: 24 }}
             />
+            
             <Button
               type="primary"
               size="large"
@@ -236,10 +324,20 @@ export default function Sales() {
               onClick={handleCheckout}
               loading={createSaleMutation.isPending}
               disabled={cart.length === 0}
-              style={{ marginTop: 24 }}
+              style={{ 
+                height: 56,
+                fontSize: 16,
+                fontWeight: 600
+              }}
             >
               Complete Sale
             </Button>
+
+            {cart.length === 0 && (
+              <Text type="secondary" style={{ display: 'block', textAlign: 'center', marginTop: 16, fontSize: 12 }}>
+                Add items to cart to complete a sale
+              </Text>
+            )}
           </Card>
         </Col>
       </Row>

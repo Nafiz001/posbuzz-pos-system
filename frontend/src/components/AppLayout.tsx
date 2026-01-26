@@ -80,8 +80,8 @@ export default function AppLayout() {
             Logout
           </Button>
         </Header>
-        <Content style={{ margin: '24px 16px 0' }}>
-          <div style={{ padding: 24, background: '#fff', minHeight: 360 }}>
+        <Content style={{ margin: '24px', overflow: 'initial' }}>
+          <div style={{ background: '#f0f2f5', minHeight: 'calc(100vh - 112px)' }}>
             <Outlet />
           </div>
         </Content>

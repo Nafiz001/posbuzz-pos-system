@@ -1,7 +1,7 @@
 {
   "info": {
+    "_postman_id": "12345678-1234-1234-1234-123456789abc",
     "name": "PosBuzz POS System API",
-    "_postman_id": "posbuzz-pos-collection",
     "description": "Complete API collection for PosBuzz POS System",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
@@ -16,19 +16,27 @@
             "header": [
               {
                 "key": "Content-Type",
-                "value": "application/json"
+                "value": "application/json",
+                "type": "text"
               }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"admin@posbuzz.com\",\n  \"password\": \"password123\"\n}"
+              "raw": "{\n  \"email\": \"admin@posbuzz.com\",\n  \"password\": \"password123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{BASE_URL}}/auth/register",
               "host": ["{{BASE_URL}}"],
               "path": ["auth", "register"]
-            }
-          }
+            },
+            "description": "Register a new user account"
+          },
+          "response": []
         },
         {
           "name": "Login",
@@ -41,7 +49,8 @@
                   "    var jsonData = pm.response.json();",
                   "    pm.environment.set(\"ACCESS_TOKEN\", jsonData.access_token);",
                   "}"
-                ]
+                ],
+                "type": "text/javascript"
               }
             }
           ],
@@ -50,19 +59,27 @@
             "header": [
               {
                 "key": "Content-Type",
-                "value": "application/json"
+                "value": "application/json",
+                "type": "text"
               }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"admin@posbuzz.com\",\n  \"password\": \"password123\"\n}"
+              "raw": "{\n  \"email\": \"admin@posbuzz.com\",\n  \"password\": \"password123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{BASE_URL}}/auth/login",
               "host": ["{{BASE_URL}}"],
               "path": ["auth", "login"]
-            }
-          }
+            },
+            "description": "Login and get JWT access token"
+          },
+          "response": []
         }
       ]
     },
@@ -76,40 +93,66 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{ACCESS_TOKEN}}"
+                "value": "Bearer {{ACCESS_TOKEN}}",
+                "type": "text"
               }
             ],
             "url": {
               "raw": "{{BASE_URL}}/products",
               "host": ["{{BASE_URL}}"],
               "path": ["products"]
-            }
-          }
+            },
+            "description": "Get all products from the database"
+          },
+          "response": []
         },
         {
           "name": "Create Product",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.environment.set(\"PRODUCT_ID\", jsonData.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{ACCESS_TOKEN}}"
+                "value": "Bearer {{ACCESS_TOKEN}}",
+                "type": "text"
               },
               {
                 "key": "Content-Type",
-                "value": "application/json"
+                "value": "application/json",
+                "type": "text"
               }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Laptop\",\n  \"sku\": \"LAP001\",\n  \"price\": 999.99,\n  \"stock_quantity\": 10\n}"
+              "raw": "{\n  \"name\": \"Laptop\",\n  \"sku\": \"LAP001\",\n  \"price\": 999.99,\n  \"stock_quantity\": 10\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{BASE_URL}}/products",
               "host": ["{{BASE_URL}}"],
               "path": ["products"]
-            }
-          }
+            },
+            "description": "Create a new product"
+          },
+          "response": []
         },
         {
           "name": "Get Product by ID",
@@ -118,15 +161,18 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{ACCESS_TOKEN}}"
+                "value": "Bearer {{ACCESS_TOKEN}}",
+                "type": "text"
               }
             ],
             "url": {
               "raw": "{{BASE_URL}}/products/{{PRODUCT_ID}}",
               "host": ["{{BASE_URL}}"],
               "path": ["products", "{{PRODUCT_ID}}"]
-            }
-          }
+            },
+            "description": "Get a single product by ID"
+          },
+          "response": []
         },
         {
           "name": "Update Product",
@@ -135,23 +181,32 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{ACCESS_TOKEN}}"
+                "value": "Bearer {{ACCESS_TOKEN}}",
+                "type": "text"
               },
               {
                 "key": "Content-Type",
-                "value": "application/json"
+                "value": "application/json",
+                "type": "text"
               }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"price\": 899.99,\n  \"stock_quantity\": 15\n}"
+              "raw": "{\n  \"price\": 899.99,\n  \"stock_quantity\": 15\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{BASE_URL}}/products/{{PRODUCT_ID}}",
               "host": ["{{BASE_URL}}"],
               "path": ["products", "{{PRODUCT_ID}}"]
-            }
-          }
+            },
+            "description": "Update an existing product"
+          },
+          "response": []
         },
         {
           "name": "Delete Product",
@@ -160,15 +215,18 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{ACCESS_TOKEN}}"
+                "value": "Bearer {{ACCESS_TOKEN}}",
+                "type": "text"
               }
             ],
             "url": {
               "raw": "{{BASE_URL}}/products/{{PRODUCT_ID}}",
               "host": ["{{BASE_URL}}"],
               "path": ["products", "{{PRODUCT_ID}}"]
-            }
-          }
+            },
+            "description": "Delete a product"
+          },
+          "response": []
         }
       ]
     },
@@ -177,28 +235,51 @@
       "item": [
         {
           "name": "Create Sale - Success",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.environment.set(\"SALE_ID\", jsonData.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{ACCESS_TOKEN}}"
+                "value": "Bearer {{ACCESS_TOKEN}}",
+                "type": "text"
               },
               {
                 "key": "Content-Type",
-                "value": "application/json"
+                "value": "application/json",
+                "type": "text"
               }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"items\": [\n    {\n      \"productId\": \"{{PRODUCT_ID}}\",\n      \"quantity\": 2\n    }\n  ]\n}"
+              "raw": "{\n  \"items\": [\n    {\n      \"productId\": \"{{PRODUCT_ID}}\",\n      \"quantity\": 2\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{BASE_URL}}/sales",
               "host": ["{{BASE_URL}}"],
               "path": ["sales"]
-            }
-          }
+            },
+            "description": "Create a successful sale with valid quantity"
+          },
+          "response": []
         },
         {
           "name": "Create Sale - Insufficient Stock",
@@ -207,23 +288,32 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{ACCESS_TOKEN}}"
+                "value": "Bearer {{ACCESS_TOKEN}}",
+                "type": "text"
               },
               {
                 "key": "Content-Type",
-                "value": "application/json"
+                "value": "application/json",
+                "type": "text"
               }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"items\": [\n    {\n      \"productId\": \"{{PRODUCT_ID}}\",\n      \"quantity\": 999\n    }\n  ]\n}"
+              "raw": "{\n  \"items\": [\n    {\n      \"productId\": \"{{PRODUCT_ID}}\",\n      \"quantity\": 999\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{BASE_URL}}/sales",
               "host": ["{{BASE_URL}}"],
               "path": ["sales"]
-            }
-          }
+            },
+            "description": "Test insufficient stock error handling"
+          },
+          "response": []
         },
         {
           "name": "Get All Sales",
@@ -232,15 +322,18 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{ACCESS_TOKEN}}"
+                "value": "Bearer {{ACCESS_TOKEN}}",
+                "type": "text"
               }
             ],
             "url": {
               "raw": "{{BASE_URL}}/sales",
               "host": ["{{BASE_URL}}"],
               "path": ["sales"]
-            }
-          }
+            },
+            "description": "Get all sales from the database"
+          },
+          "response": []
         },
         {
           "name": "Get Sale by ID",
@@ -249,15 +342,18 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{ACCESS_TOKEN}}"
+                "value": "Bearer {{ACCESS_TOKEN}}",
+                "type": "text"
               }
             ],
             "url": {
               "raw": "{{BASE_URL}}/sales/{{SALE_ID}}",
               "host": ["{{BASE_URL}}"],
               "path": ["sales", "{{SALE_ID}}"]
-            }
-          }
+            },
+            "description": "Get a single sale by ID"
+          },
+          "response": []
         }
       ]
     },
@@ -270,26 +366,32 @@
           "raw": "{{BASE_URL}}/health",
           "host": ["{{BASE_URL}}"],
           "path": ["health"]
-        }
-      }
+        },
+        "description": "Check if the API is running"
+      },
+      "response": []
     }
   ],
   "variable": [
     {
       "key": "BASE_URL",
-      "value": "http://localhost:3000"
+      "value": "http://localhost:3000",
+      "type": "string"
     },
     {
       "key": "ACCESS_TOKEN",
-      "value": ""
+      "value": "",
+      "type": "string"
     },
     {
       "key": "PRODUCT_ID",
-      "value": ""
+      "value": "",
+      "type": "string"
     },
     {
       "key": "SALE_ID",
-      "value": ""
+      "value": "",
+      "type": "string"
     }
   ]
 }

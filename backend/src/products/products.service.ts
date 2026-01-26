@@ -115,7 +115,7 @@ export class ProductsService {
     return product;
   }
 
-  private async invalidateCache(id?: string) {
+  async invalidateCache(id?: string) {
     // Invalidate all products list
     await this.redis.del(PRODUCTS_CACHE_KEY);
     

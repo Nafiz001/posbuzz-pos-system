@@ -4,11 +4,15 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { ProductsService } from '../products/products.service';
 import { CreateSaleDto } from './dto/create-sale.dto';
 
 @Injectable()
 export class SalesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private productsService: ProductsService,
+  ) {}
 
   async create(createSaleDto: CreateSaleDto) {
     // Validate stock availability for all items first
@@ -66,7 +70,13 @@ export class SalesService {
             },
           },
         });
+        
+        // Invalidate product cache for this specific product
+        await this.productsService.invalidateCache(item.productId);
       }
+
+      // Invalidate all products cache after all updates
+      await this.productsService.invalidateCache();
 
       // Create sale with items
       const sale = await tx.sale.create({

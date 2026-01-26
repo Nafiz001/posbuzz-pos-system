@@ -10,9 +10,15 @@ import {
   Space,
   message,
   Popconfirm,
+  Card,
+  Typography,
+  Tag,
+  Badge,
 } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined } from '@ant-design/icons';
 import api from '../lib/api';
+
+const { Title } = Typography;
 
 interface Product {
   id: string;
@@ -26,15 +32,18 @@ interface Product {
 export default function Products() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [searchText, setSearchText] = useState('');
   const [form] = Form.useForm();
   const queryClient = useQueryClient();
 
-  const { data: products, isLoading } = useQuery({
+  const { data: products, isLoading, refetch } = useQuery({
     queryKey: ['products'],
     queryFn: async () => {
       const response = await api.get('/products');
       return response.data;
     },
+    refetchOnMount: 'always',
+    staleTime: 0,
   });
 
   const createMutation = useMutation({
@@ -105,35 +114,61 @@ export default function Products() {
     }
   };
 
+  const filteredProducts = products?.filter((product: Product) =>
+    product.name.toLowerCase().includes(searchText.toLowerCase()) ||
+    product.sku.toLowerCase().includes(searchText.toLowerCase())
+  );
+
   const columns = [
     {
-      title: 'Name',
+      title: 'Product Name',
       dataIndex: 'name',
       key: 'name',
+      sorter: (a: Product, b: Product) => a.name.localeCompare(b.name),
+      render: (name: string) => <strong>{name}</strong>,
     },
     {
       title: 'SKU',
       dataIndex: 'sku',
       key: 'sku',
+      render: (sku: string) => <Tag color="blue">{sku}</Tag>,
     },
     {
       title: 'Price',
       dataIndex: 'price',
       key: 'price',
-      render: (price: number) => `$${price.toFixed(2)}`,
+      sorter: (a: Product, b: Product) => a.price - b.price,
+      render: (price: number) => (
+        <span style={{ fontSize: 16, fontWeight: 500, color: '#52c41a' }}>
+          ${price.toFixed(2)}
+        </span>
+      ),
     },
     {
       title: 'Stock',
       dataIndex: 'stock_quantity',
       key: 'stock_quantity',
+      sorter: (a: Product, b: Product) => a.stock_quantity - b.stock_quantity,
+      render: (stock: number) => (
+        <Badge
+          count={stock}
+          showZero
+          style={{
+            backgroundColor: stock === 0 ? '#f5222d' : stock < 10 ? '#faad14' : '#52c41a',
+          }}
+        />
+      ),
     },
     {
       title: 'Actions',
       key: 'actions',
+      width: 180,
       render: (_: any, record: Product) => (
         <Space>
           <Button
-            type="link"
+            type="primary"
+            ghost
+            size="small"
             icon={<EditOutlined />}
             onClick={() => showModal(record)}
           >
@@ -146,7 +181,7 @@ export default function Products() {
             okText="Yes"
             cancelText="No"
           >
-            <Button type="link" danger icon={<DeleteOutlined />}>
+            <Button type="primary" danger ghost size="small" icon={<DeleteOutlined />}>
               Delete
             </Button>
           </Popconfirm>
@@ -157,41 +192,72 @@ export default function Products() {
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
-        <h1>Products</h1>
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={() => showModal()}
-        >
-          Add Product
-        </Button>
-      </div>
+      <Card bordered={false} style={{ marginBottom: 16 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
+          <div>
+            <Title level={2} style={{ margin: 0 }}>Products</Title>
+            <p style={{ margin: '4px 0 0 0', color: '#8c8c8c' }}>
+              Manage your inventory and product catalog
+            </p>
+          </div>
+          <Space>
+            <Input
+              placeholder="Search products..."
+              prefix={<SearchOutlined />}
+              allowClear
+              style={{ width: 250 }}
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+            />
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              size="large"
+              onClick={() => showModal()}
+            >
+              Add Product
+            </Button>
+          </Space>
+        </div>
+      </Card>
 
-      <Table
-        columns={columns}
-        dataSource={products}
-        rowKey="id"
-        loading={isLoading}
-      />
+      <Card bordered={false}>
+        <Table
+          columns={columns}
+          dataSource={filteredProducts}
+          rowKey="id"
+          loading={isLoading}
+          pagination={{
+            pageSize: 10,
+            showTotal: (total) => `Total ${total} products`,
+            showSizeChanger: true,
+          }}
+        />
+      </Card>
 
       <Modal
-        title={editingProduct ? 'Edit Product' : 'Add Product'}
+        title={
+          <Title level={4} style={{ margin: 0 }}>
+            {editingProduct ? 'Edit Product' : 'Add New Product'}
+          </Title>
+        }
         open={isModalOpen}
         onCancel={handleCancel}
         footer={null}
+        width={600}
       >
         <Form
           form={form}
           layout="vertical"
           onFinish={handleSubmit}
+          style={{ marginTop: 24 }}
         >
           <Form.Item
             name="name"
             label="Product Name"
             rules={[{ required: true, message: 'Please enter product name' }]}
           >
-            <Input />
+            <Input size="large" placeholder="Enter product name" />
           </Form.Item>
 
           <Form.Item
@@ -199,36 +265,51 @@ export default function Products() {
             label="SKU"
             rules={[{ required: true, message: 'Please enter SKU' }]}
           >
-            <Input />
+            <Input size="large" placeholder="Enter unique SKU" disabled={!!editingProduct} />
           </Form.Item>
 
           <Form.Item
             name="price"
             label="Price"
-            rules={[{ required: true, message: 'Please enter price' }]}
+            rules={[
+              { required: true, message: 'Please enter price' },
+              { type: 'number', min: 0.01, message: 'Price must be greater than 0' }
+            ]}
           >
             <InputNumber
+              size="large"
               min={0}
               precision={2}
               style={{ width: '100%' }}
               prefix="$"
+              placeholder="0.00"
             />
           </Form.Item>
 
           <Form.Item
             name="stock_quantity"
             label="Stock Quantity"
-            rules={[{ required: true, message: 'Please enter stock quantity' }]}
+            rules={[
+              { required: true, message: 'Please enter stock quantity' },
+              { type: 'number', min: 0, message: 'Stock cannot be negative' }
+            ]}
           >
-            <InputNumber min={0} style={{ width: '100%' }} />
+            <InputNumber size="large" min={0} style={{ width: '100%' }} placeholder="0" />
           </Form.Item>
 
-          <Form.Item>
-            <Space>
-              <Button type="primary" htmlType="submit" loading={createMutation.isPending || updateMutation.isPending}>
-                {editingProduct ? 'Update' : 'Create'}
+          <Form.Item style={{ marginBottom: 0, marginTop: 24 }}>
+            <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
+              <Button size="large" onClick={handleCancel}>
+                Cancel
               </Button>
-              <Button onClick={handleCancel}>Cancel</Button>
+              <Button 
+                type="primary" 
+                htmlType="submit" 
+                size="large"
+                loading={createMutation.isPending || updateMutation.isPending}
+              >
+                {editingProduct ? 'Update Product' : 'Create Product'}
+              </Button>
             </Space>
           </Form.Item>
         </Form>
