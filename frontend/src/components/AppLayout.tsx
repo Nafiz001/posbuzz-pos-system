@@ -4,6 +4,7 @@ import {
   DashboardOutlined,
   ShoppingOutlined,
   ShoppingCartOutlined,
+  HistoryOutlined,
   LogoutOutlined,
 } from '@ant-design/icons';
 import { useAuth } from '../contexts/AuthContext';
@@ -38,6 +39,12 @@ export default function AppLayout() {
       icon: <ShoppingCartOutlined />,
       label: 'POS / Sales',
       onClick: () => navigate('/sales'),
+    },
+    {
+      key: '/sales-history',
+      icon: <HistoryOutlined />,
+      label: 'Sales History',
+      onClick: () => navigate('/sales-history'),
     },
   ];
 
