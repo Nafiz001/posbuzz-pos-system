@@ -375,7 +375,7 @@
   "variable": [
     {
       "key": "BASE_URL",
-      "value": "http://localhost:3000",
+      "value": "https://posbuzz-pos-system.onrender.com",
       "type": "string"
     },
     {

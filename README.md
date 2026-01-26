@@ -230,20 +230,12 @@ The frontend will run on `http://localhost:5173`
 - ✅ Cloud database (Supabase PostgreSQL)
 - ✅ Serverless Redis (Upstash)
 
-### ⚠️ Known Limitations
+## Known Limitations
 
-**Performance**
-- ⏱️ Render free tier: Backend cold starts (30-60s on first request)
-- ⏱️ Upstash free tier: 10,000 requests/day limit
-
-**Features Not Implemented** (Beyond assignment scope)
-- ❌ Refresh token mechanism
-- ❌ User roles and permissions
-- ❌ Sales analytics dashboard
-- ❌ Product categories
-- ❌ Sales history UI page
-- ❌ Unit tests
-- ❌ API documentation (Swagger)
+- Backend cold starts on Render free tier (30–60 seconds)
+- No refresh token mechanism
+- No role-based access control
+- No automated tests (out of scope)
 
 ### 🎯 Assignment Requirements Status
 
@@ -299,6 +291,14 @@ The frontend will run on `http://localhost:5173`
 - **Prisma transactions**: Ensures data consistency
 - **Connection pooling**: Efficient database connections
 
+## Design Decisions
+
+- **PostgreSQL (Supabase)** was used as the production database for reliability and scalability.
+- **Prisma transactions** ensure atomic sales and stock updates.
+- **Redis (Upstash)** is used for caching product listings and reducing database load.
+- **Render free tier** was chosen for backend hosting; cold starts are expected.
+- **Vercel** was chosen for frontend hosting due to excellent React + Vite support.
+
 ## License
 
 This is a technical assignment project.
@@ -307,55 +307,4 @@ This is a technical assignment project.
 
 **Developed for PosBuzz Internship Technical Assignment**  
 **Deadline**: January 29, 2026  
-**Status**: ✅ **Completed and Deployed
-- Global edge network
-
-## Development Notes
-
-- Production-level code standards throughout
-- Modular architecture following NestJS best practices
-- Modern React patterns with hooks and context
-- Comprehensive error handling
-- Clean, maintainable codebase
-- **Migration from SQLite to PostgreSQL completed**
-- **Prisma downgraded from v7 to v5.22.0 for stability**
-- **Redis caching fully integrated with Upstash**
-- Incremental git history demonstrating development proces
-- Email notifications
-- Inventory alerts
-
-## Why
-
-**SQLite Instead of PostgreSQL**: 
-The PostgreSQL connection required proper credentials. To ensure the application works immediately without database setup hassles, I used SQLite which works out of the box. The Prisma schema is database-agnostic and can easily switch to PostgreSQL.
-
-**Redis Graceful Degradation**: 
-The Redis service is configured to fall back gracefully if Redis is not available, ensuring the application continues to work without caching.
-
-**No Deployment**: 
-Due to time constraints and the focus being on code quality and functionality, the deployment step was deprioritized. The application is fully functional locally and can be deployed using standard deployment practices.
-
-## Development Notes
-
-- The application uses production-level code standards
-- All modules are properly separated and follow NestJS best practices
-- Frontend uses modern React patterns with hooks and context
-- Error handling is comprehensive across the stack
-- The codebase is well-structured and maintainable
-- Commit history shows incremental development with 10+ meaningful commits
-
-## Testing
-
-1. Start the backend: `cd backend && npm run start:dev`
-2. Start the frontend: `cd frontend && npm run dev`
-3. Register/Login through the UI
-4. Test product creation and sales flow
-5. Use the Postman collection for API testing
-
-## License
-
-This is a technical assignment project.
-
----
-
-**Developed for PosBuzz Internship Technical Assignment**
+**Status**: ✅ **Completed and Deployed**
