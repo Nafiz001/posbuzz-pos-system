@@ -60,20 +60,18 @@ A production-ready, full-stack Point of Sale (POS) system built with modern tech
 - Prevents overselling (validates stock before sale)
 - **Transaction-based operations** with Prisma for data consistency
 - **Cache invalidation** after stock updates
-- **Registration page** with password confirmation
-- **Modern UI redesign** with gradient backgrounds
+- Sales history with detailed transaction records
+
+### ✅ Additional Features
+- Registration page with password confirmation
+- Modern UI redesign with gradient backgrounds
 - Health check endpoint
 - Global error handling
 - Input validation with class-validator
 - CORS enabled for frontend communication
-- Responsive UI design
+- Responsive full-screen layout
 - Loading states and error messages
 - React Query with automatic refetching
-- Full-screen responsive layout
-- Input validation with class-validator
-- CORS enabled for frontend communication
-- Responsive UI design
-- Loading states and error messages
 
 ## Project Structure
 
@@ -93,7 +91,14 @@ posbuzz-pos-system/
 │   │   ├── components/     # Reusable UI components
 │   │   ├── contexts/       # React context providers
 │   │   ├── lib/            # Utilities and API client
-│   Quick Start with Live Deployment
+│   │   └── pages/          # Application pages
+│   └── package.json
+└── postman/                # API collection for testing
+```
+
+## Getting Started
+
+### Quick Start with Live Deployment
 
 Simply visit [https://posbuzz-pos-system.vercel.app](https://posbuzz-pos-system.vercel.app) to use the application immediately!
 
@@ -169,7 +174,11 @@ npm run dev
 
 The frontend will run on `http://localhost:5173`
 
-The frontend will run on `http://localhost:5173`
+## API Documentation
+
+### Postman Collection
+
+Import the `postman/posbuzz-collection.json` file into Postman.
 
 ### First-Time Setup
 
@@ -191,7 +200,15 @@ The frontend will run on `http://localhost:5173`
 - **GET /products** - List all products (cached)
 - **POST /products** - Create new product
 - **GET /products/:id** - Get product by ID
-- *📊 Project Status
+- **PATCH /products/:id** - Update product
+- **DELETE /products/:id** - Delete product
+
+**Sales**
+- **GET /sales** - List all sales
+- **POST /sales** - Create new sale (auto stock deduction)
+- **GET /sales/:id** - Get sale by ID
+
+## 📊 Project Status
 
 ### ✅ What Was Completed (100%)
 
@@ -249,7 +266,11 @@ The frontend will run on `http://localhost:5173`
 | Ant Design | ✅ 100% | Professional components |
 | TanStack Query | ✅ 100% | Data synchronization |
 | Authentication | ✅ 100% | JWT with bcrypt |
-| P🚀 Deployment Architecture
+| Product CRUD | ✅ 100% | Full CRUD with caching |
+| Sales System | ✅ 100% | Stock deduction, validation |
+| Deployment | ✅ 100% | Live on Vercel + Render |
+
+## 🚀 Deployment Architecture
 
 ### Frontend (Vercel)
 - Automatic deployments from GitHub main branch
@@ -260,6 +281,11 @@ The frontend will run on `http://localhost:5173`
 ### Backend (Render)
 - Containerized Node.js deployment
 - Automatic builds from GitHub
+- Health check monitoring
+- Environment variables configured
+
+## Testing
+
 ### Live Production Testing
 1. Visit [https://posbuzz-pos-system.vercel.app](https://posbuzz-pos-system.vercel.app)
 2. Register a new account
